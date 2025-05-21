@@ -1,9 +1,9 @@
 """
     tidyTextFile.py
 
-    Removes trailing whitespace in a document, removes extra newlines in a file, and ends a file with a newline
-    INPUT: Name of file from input directory to clean up
-    OUTPUT: The cleaned up file is sent to the output directory
+    Removes trailing whitespace in documents, removes large newline gaps, and ends files with a newline
+    INPUT: Names of files from input directory to clean up
+    OUTPUT: The cleaned up files are sent to the output directory
 """
 
 import os
