@@ -95,7 +95,7 @@ while i < loopfor + 1:
                     oldColor = document[stopIndex + 3: stopIndex + 9]
                     #print(f"color {oldColor} index {stopIndex}")
                     newColor = hueShifter(oldColor, hueOffset)
-                    output.write(str(document[startIndex:stopIndex] + '="#' + (newColor if oldColor != "000000" else oldColor)))
+                    output.write(str(document[startIndex:stopIndex] + '="#' + newColor))
                     startIndex = stopIndex + 9
                 else:
                     output.write(str(document[startIndex:]))
