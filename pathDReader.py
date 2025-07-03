@@ -29,7 +29,7 @@ def findFirstChar(string : str, substr : str, start : int, end : int):
 
     return closestIndex, closestChar
 
-def splitDPathCommands(dPathString : str):
+def splitPathDCommands(dPathString : str):
     startIndex : int = 0
     endIndex : int = len(dPathString) - 1
     indexes : list[int] = []
@@ -49,7 +49,7 @@ def splitDPathCommands(dPathString : str):
         dPathCommands.append([commands[i], dPathString[indexes[i]:indexes[i + 1] - 1]])
         i += 1
     if dPathString[-1] in "Zz":
-        dPathCommands.append([commands[i], dPathString[indexes[i]:-2]])
+        dPathCommands.append([commands[i], dPathString[indexes[i]:-1]])
         dPathCommands.append([dPathString[-1], ""])
     else:
         dPathCommands.append([commands[i], dPathString[indexes[i]:]])
@@ -57,7 +57,7 @@ def splitDPathCommands(dPathString : str):
     return dPathCommands
 
 def processPathD(value : str):
-    pathDCommands : list[list[str]] = splitDPathCommands(value)
+    pathDCommands : list[list[str]] = splitPathDCommands(value)
     # isolate all numbers
     pathDNumbers = []
     for pair in pathDCommands:

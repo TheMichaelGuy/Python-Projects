@@ -6,12 +6,10 @@
     This is also meant for certain svg sprites made in Scratch
 """
 
-#from PIL import Image # pip install Pillow
 import os
 import sys
 import re
 
-# Considered manually editing it
 # https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d
 # https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/linearGradient
 
@@ -32,7 +30,7 @@ def findFirstChar(string : str, substr : str, start : int, end : int):
 
     return closestIndex, closestChar
 
-def findFirstString(document : str, strings : list[str], start : int): # this could definetly be optimized with a priority queue in the main program
+def findFirstString(document : str, strings : list[str], start : int): # this could definitely be optimized with a priority queue in the main program
     if len(document) < 1:
         return -1
     if start == None:
@@ -47,7 +45,7 @@ def findFirstString(document : str, strings : list[str], start : int): # this co
 
     return closestIndex, closestString
 
-def splitDPathCommands(dPathString : str):
+def splitPathDCommands(dPathString : str):
     startIndex : int = 0
     endIndex : int = len(dPathString) - 1
     indexes : list[int] = []
@@ -67,7 +65,7 @@ def splitDPathCommands(dPathString : str):
         dPathCommands.append([commands[i], dPathString[indexes[i]:indexes[i + 1] - 1]])
         i += 1
     if dPathString[-1] in "Zz":
-        dPathCommands.append([commands[i], dPathString[indexes[i]:-2]])
+        dPathCommands.append([commands[i], dPathString[indexes[i]:-1]])
         dPathCommands.append([dPathString[-1], ""])
     else:
         dPathCommands.append([commands[i], dPathString[indexes[i]:]])
@@ -136,7 +134,7 @@ def scaleViewBox(text: str, multiplier : float):
     return newViewBox
 
 def scalePathD(text : str, multiplier : float):
-    return scalePathCommands(splitDPathCommands(text), multiplier)
+    return scalePathCommands(splitPathDCommands(text), multiplier)
 
 in_dir : str = "input/"
 out_dir : str = "output/"
