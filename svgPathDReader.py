@@ -1,5 +1,5 @@
 """
-    pathDReader.py
+    svgPathDReader.py
 
     Reads an svg document and prints the commands for a d attribute in a path element
     in a more understandable way. It's better to use this for simple shapes since the
@@ -30,6 +30,9 @@ def findFirstChar(string : str, substr : str, start : int, end : int):
     return closestIndex, closestChar
 
 def splitPathDCommands(dPathString : str):
+    if dPathString == "":
+        empty : list[list[str]] = []
+        return empty
     startIndex : int = 0
     endIndex : int = len(dPathString) - 1
     indexes : list[int] = []

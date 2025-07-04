@@ -46,6 +46,9 @@ def findFirstString(document : str, strings : list[str], start : int): # this co
     return closestIndex, closestString
 
 def splitPathDCommands(dPathString : str):
+    if dPathString == "":
+        empty : list[list[str]] = []
+        return empty
     startIndex : int = 0
     endIndex : int = len(dPathString) - 1
     indexes : list[int] = []
@@ -73,6 +76,8 @@ def splitPathDCommands(dPathString : str):
     return dPathCommands
 
 def scalePathCommands(dPathCommands : list[list[str]], multiplier : float):
+    if not dPathCommands:
+        return ""
     # isolate all numbers
     dPathNumbers = []
     for pair in dPathCommands:

@@ -1,5 +1,5 @@
 """
-    reshapeBisector.py
+    svgReshapeBisector.py
 
     Takes an svg Document that uses the path element with d attributes and modifies said attributes
     so that certain commands are bisected into two commands.
@@ -41,6 +41,9 @@ def findFirstChar(string : str, substr : str, start : int, end : int):
     return closestIndex, closestChar
 
 def splitPathDCommands(dPathString : str):
+    if dPathString == "":
+        empty : list[list[str]] = []
+        return empty
     startIndex : int = 0
     endIndex : int = len(dPathString) - 1
     indexes : list[int] = []
