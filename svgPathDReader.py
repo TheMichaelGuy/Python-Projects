@@ -4,6 +4,7 @@
     Reads an svg document and prints the commands for a d attribute in a path element
     in a more understandable way. It's better to use this for simple shapes since the
     output would get large.
+    NOTE: The format of the d attribute makes a lot of assumptions so this may not work
 """
 
 # For more info on d attributes: https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d
