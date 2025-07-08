@@ -145,8 +145,6 @@ in_dir : str = "input/"
 out_dir : str = "output/"
 loopfor : int = len(sys.argv)
 
-print(len(sys.argv))
-
 if loopfor < 2:
     for img in glob.glob(str(in_dir + '*.svg')):
         print(f"FOR IMAGE: {img}")

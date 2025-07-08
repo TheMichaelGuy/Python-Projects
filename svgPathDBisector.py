@@ -19,6 +19,7 @@
 import re
 import os
 import sys
+import glob
 
 import bezier # pip install bezier
 import numpy as np
@@ -105,7 +106,7 @@ def bisectPathD(value : str):
             left, right = curve.subdivide()
             lx, ly = left.nodes
             rx, ry = right.nodes
-            print(f"lx {lx}, ly {ly}, rx {rx}, ry {ry}")
+            #print(f"lx {lx}, ly {ly}, rx {rx}, ry {ry}")
             newStrings.append("c" + str(lx[1]) + "," + str(ly[1]) + " " + str(lx[2]) + "," + str(ly[2]) + " " + str(lx[3]) + "," + str(ly[3]))
             newStrings.append("c" + str(rx[1] - lx[3]) + "," + str(ry[1] - ly[3]) + " " + str(rx[2] - lx[3]) + "," + str(ry[2] - ly[3]) + " " + str(rx[3] - lx[3]) + "," + str(ry[3] - ly[3]))
         if pair[0] in "MmLTtCSsHVQq": # Coordinate Variables
@@ -134,18 +135,9 @@ def bisectPathD(value : str):
         finalString += func
     return finalString
 
-in_dir : str = "input/"
-out_dir : str = "output/"
-loopfor : int = len(sys.argv)
-
-if loopfor < 1:
-    print("No command line arguments")
-    exit
-
-i : int = 1
-while i < loopfor:
-    inputPath = str(in_dir + sys.argv[i])
-    outputPath = str(out_dir + sys.argv[i])
+def bisectSVG(file : str, in_dir : str, out_dir : str):
+    inputPath = str(in_dir + file)
+    outputPath = str(out_dir + file)
 
     if os.path.isfile(inputPath):
         with open(inputPath, "r") as input:
@@ -169,5 +161,20 @@ while i < loopfor:
             output.write(document[-1])
 
     else:
-        print(f"Could not find \"{sys.argv[i]}\" in \"{in_dir}\"")
-    i += 1
+        print(f"Could not find \"{file}\" in \"{in_dir}\"")
+
+    return
+
+in_dir : str = "input/"
+out_dir : str = "output/"
+loopfor : int = len(sys.argv)
+
+if loopfor < 2:
+    for img in glob.glob(str(in_dir + '*.svg')):
+        print(f"FOR IMAGE: {img}")
+        bisectSVG(img[len(in_dir):], in_dir, out_dir)
+else:
+    i : int = 1
+    while i < loopfor:
+        bisectSVG(sys.argv[i], in_dir, out_dir)
+        i += 1
