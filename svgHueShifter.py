@@ -50,20 +50,6 @@ def hueShifter(hexCode : str, hueOffset : float):
     newCode = RGBToHex(int(R),int(G),int(B))
     return newCode
 
-"""
-# Test Code
-
-myHex = "ff6161"
-R,G,B = hexToRGB(myHex)
-print(f"#{myHex} gives R{R} G{G} B{B}")
-
-identityHex = RGBToHex(R,G,B)
-print(f"R{R} G{G} B{B} gives #{identityHex}")
-
-transformedHex = hueShifter(myHex, 0.5)
-print(f"#{myHex} shifts to #{transformedHex}")
-"""
-
 in_dir : str = "input/"
 out_dir : str = "output/"
 loopfor : int = len(sys.argv) - 1
