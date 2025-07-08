@@ -12,6 +12,7 @@
 import re
 import os
 import sys
+import glob
 
 def findFirstChar(string : str, substr : str, start : int, end : int):
     if len(string) < 1:
@@ -114,25 +115,14 @@ def processPathD(value : str):
 
     return
 
-in_dir : str = "input/"
-out_dir : str = "output/"
-loopfor : int = len(sys.argv)
-
-if loopfor < 1:
-    print("No command line arguments")
-    exit
-
-i : int = 1
-while i < loopfor:
-    inputPath = str(in_dir + sys.argv[i])
-    outputPath = str(out_dir + sys.argv[i])
-
-    j = 1
+def readPathD(file : str, in_dir : str):
+    inputPath = str(in_dir + file)
     if os.path.isfile(inputPath):
         with open(inputPath, "r") as input:
             document = input.read()
             
         startIndex = stopIndex = 0
+        j = 1
         while startIndex != -1:
 
             startIndex = document.find("path d", startIndex)
@@ -148,4 +138,21 @@ while i < loopfor:
 
     else:
         print(f"Could not find \"{sys.argv[i]}\" in \"{in_dir}\"")
-    i += 1
+
+    return
+
+in_dir : str = "input/"
+out_dir : str = "output/"
+loopfor : int = len(sys.argv)
+
+print(len(sys.argv))
+
+if loopfor < 2:
+    for img in glob.glob(str(in_dir + '*.svg')):
+        print(f"FOR IMAGE: {img}")
+        readPathD(img[len(in_dir):], in_dir)
+else:
+    i : int = 1
+    while i < loopfor:
+        readPathD(sys.argv[i], in_dir)
+        i += 1
