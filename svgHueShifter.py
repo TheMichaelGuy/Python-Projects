@@ -8,6 +8,7 @@
 import colorsys
 import os
 import sys
+import glob
 
 def hexToRGB(hexCode : str):
     if len(hexCode) != 6:
@@ -50,6 +51,31 @@ def hueShifter(hexCode : str, hueOffset : float):
     newCode = RGBToHex(int(R),int(G),int(B))
     return newCode
 
+def hueShiftSVG(file : str, in_dir : str, out_dir : str):
+    inputPath = str(in_dir + file)
+    outputPath = str(out_dir + file)
+
+    if os.path.isfile(inputPath):
+        with open(inputPath, "r") as input:
+            document = input.read()
+        with open(outputPath, "w") as output:
+            startIndex = stopIndex = 0
+            
+            while stopIndex != -1:
+                stopIndex = document.find('="#', startIndex)
+
+                if stopIndex != -1:
+                    oldColor = document[stopIndex + 3: stopIndex + 9]
+                    newColor = hueShifter(oldColor, hueOffset)
+                    output.write(str(document[startIndex:stopIndex] + '="#' + newColor))
+                    startIndex = stopIndex + 9
+                else:
+                    output.write(str(document[startIndex:]))
+
+    else:
+        print(f"Could not find \"{file}\" in \"{in_dir}\"")
+    return
+
 in_dir : str = "input/"
 out_dir : str = "output/"
 loopfor : int = len(sys.argv) - 1
@@ -63,29 +89,11 @@ if hueOffset < 0 or hueOffset > 1:
     print("The second argument must be a value between 0 and 1. That's the hue shift.")
     exit
 
-i : int = 2
-while i < loopfor + 1:
-    inputPath = str(in_dir + sys.argv[i])
-    outputPath = str(out_dir + sys.argv[i])
-
-    if os.path.isfile(inputPath):
-        with open(inputPath, "r") as input:
-            document = input.read()
-        with open(outputPath, "w") as output:
-            startIndex = stopIndex = 0
-            
-            while stopIndex != -1:
-                stopIndex = document.find('="#', startIndex)
-
-                if stopIndex != -1:
-                    oldColor = document[stopIndex + 3: stopIndex + 9]
-                    #print(f"color {oldColor} index {stopIndex}")
-                    newColor = hueShifter(oldColor, hueOffset)
-                    output.write(str(document[startIndex:stopIndex] + '="#' + newColor))
-                    startIndex = stopIndex + 9
-                else:
-                    output.write(str(document[startIndex:]))
-
-    else:
-        print(f"Could not find \"{sys.argv[i]}\" in \"{in_dir}\"")
-    i += 1
+if loopfor < 2:
+    for img in glob.glob(str(in_dir + '*.svg')):
+        hueShiftSVG(img[len(in_dir):], in_dir, out_dir)
+else:
+    i : int = 2
+    while i < loopfor + 1:
+        hueShiftSVG(sys.argv[i], in_dir, out_dir)
+        i += 1
