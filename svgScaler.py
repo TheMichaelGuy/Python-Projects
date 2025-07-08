@@ -9,6 +9,7 @@
 import os
 import sys
 import re
+import glob
 
 # https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d
 # https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/linearGradient
@@ -108,6 +109,7 @@ def scalePathCommands(dPathCommands : list[list[str]], multiplier : float):
             pair[1][5] = multiplier * float(pair[1][5])
             pair[1][6] = multiplier * float(pair[1][6])
             newStrings.append(str(pair[0]) + " " + str(pair[1][0]) + " " + str(pair[1][1]) + " " + str(pair[1][2]) + " " + str(pair[1][3]) + " " + str(pair[1][4]) + " " + str(pair[1][5]) + "," + str(pair[1][6]))
+
         if pair[0] in "Zz": # 0 vars
             newStrings.append(str(pair[0]))
 
@@ -118,7 +120,11 @@ def scalePathCommands(dPathCommands : list[list[str]], multiplier : float):
     return finalString
 
 def scaleValue(text : str, multiplier : float):
-    return str(multiplier * float(text))
+    try:
+        output = str(multiplier * float(text))
+    except: 
+        output = text
+    return output
 
 def scaleTranslate(text : str, multiplier : float):
     if text[0:10] != "translate(":
@@ -141,20 +147,9 @@ def scaleViewBox(text: str, multiplier : float):
 def scalePathD(text : str, multiplier : float):
     return scalePathCommands(splitPathDCommands(text), multiplier)
 
-in_dir : str = "input/"
-out_dir : str = "output/"
-loopfor : int = len(sys.argv) - 1
-
-if loopfor < 1:
-    print("No command line arguments")
-    exit
-
-multiplier = float(sys.argv[1])
-
-i : int = 2
-while i < loopfor + 1:
-    inputPath = str(in_dir + sys.argv[i])
-    outputPath = str(out_dir + sys.argv[i])
+def scaleSVG(file : str, in_dir : str, out_dir : str):
+    inputPath = str(in_dir + file)
+    outputPath = str(out_dir + file)
 
     if os.path.isfile(inputPath):
         with open(inputPath, "r") as input:
@@ -183,7 +178,25 @@ while i < loopfor + 1:
                     output.write(result + ("=\"" if result != "linearGradient" else " ") + newValue)
                     startIndex += len(result) + 2
             output.write(document[-1])
-    
     else:
-        print(f"Could not find \"{sys.argv[i]}\" in \"{in_dir}\"")
-    i += 1
+        print(f"Could not find \"{file}\" in \"{in_dir}\"")
+    return
+
+in_dir : str = "input/"
+out_dir : str = "output/"
+loopfor : int = len(sys.argv) - 1
+
+if loopfor < 1:
+    print("No command line arguments")
+    exit
+
+multiplier = float(sys.argv[1])
+
+if loopfor < 2:
+    for img in glob.glob(str(in_dir + '*.svg')):
+        scaleSVG(img[len(in_dir):], in_dir, out_dir)
+else:
+    i : int = 2
+    while i < loopfor + 1:
+        scaleSVG(sys.argv[i], in_dir, out_dir)
+        i += 1
