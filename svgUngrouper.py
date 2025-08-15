@@ -70,7 +70,7 @@ while i < loopfor + 1:
             document = input.read()
         with open(outputPath, "w") as output:
 
-            startIndex = stopIndex = 0
+            startIndex = 0
             gElementAttributes:list[str] = [] # stack algorithm stuff
             while startIndex != -1:
                 startIndex, thing = findFirstString(document, ["<g>", "<g ", "</g>", "<g/>", "</", "<!--" ,"<"], startIndex)
