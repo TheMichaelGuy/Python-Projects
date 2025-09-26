@@ -8,6 +8,7 @@
 import os
 import sys
 import re
+import glob
 
 class BaseFileInfo:
 
@@ -86,19 +87,9 @@ def processElement(element : str):
         return name, attributes, values
     return name, [], []
 
-in_dir : str = "input/"
-out_dir : str = "output/"
-loopfor : int = len(sys.argv) - 1
-
-if loopfor < 1:
-    #print("No command line arguments")
-    exit
-
-i : int = 1
-while i < loopfor + 1:
-    inputPath = str(in_dir + sys.argv[i])
-    outputPath = str(out_dir + sys.argv[i])
-
+def splitSprite(file: str, in_dir : str, out_dir : str):
+    inputPath = str(in_dir + file)
+    outputPath = str(out_dir + file)
     if os.path.isfile(inputPath):
         with open(inputPath, "r") as input:
             document = input.read()
@@ -322,7 +313,7 @@ while i < loopfor + 1:
                 if line.find("url(#" + definitions.defIDs[defs] + ")") != -1:
                     myDefs.append(definitions.defEntry[defs])
 
-        with open(str(outputPath[:-4] + "" + ".svg"), "w") as output:
+        with open(str(outputPath[:-4] + "-1" + ".svg"), "w") as output:
             output.write(baseFile.header)
             if len(myDefs) > 0:
                 output.write("<defs>")
@@ -342,10 +333,10 @@ while i < loopfor + 1:
             someDefs : list[str] = []
             content : str = document[collection.startIndex : collection.stopIndex]
             for defs in range(len(definitions.defIDs)):
-                for line in content:
-                    if line.find("url(#" + definitions.defIDs[defs] + ")") != -1:
-                        someDefs.append(definitions.defEntry[defs])
-            with open(str(outputPath[:-4] + str(counter) + ".svg"), "w") as output:
+                #print(definitions.defIDs[defs])
+                if content.find("url(#" + definitions.defIDs[defs] + ")") != -1:
+                    someDefs.append(definitions.defEntry[defs])
+            with open(str(outputPath[:-4] + "-" + str(counter) + ".svg"), "w") as output:
                 output.write(baseFile.header)
                 if len(someDefs) > 0:
                     output.write("<defs>")
@@ -361,5 +352,25 @@ while i < loopfor + 1:
                 output.write("</svg>")
 
     else:
-        print(f"Could not find \"{sys.argv[i]}\" in \"{in_dir}\"")
-    i += 1
+        print(f"Could not find \"{file}\" in \"{in_dir}\"")
+
+    return
+
+in_dir : str = "input/"
+out_dir : str = "output/"
+loopfor : int = len(sys.argv) - 1
+
+if loopfor < 1:
+    answer = input("You entered no command line arguments. If you continue, svgSpriteSplitter.svg will run on all of your SVGs which may take a lot of time or space. Enter 'Y' to proceed or anything else to exit: ")
+    if answer == 'Y':
+        print("Continuing...")
+        for img in glob.glob(str(in_dir + '*.svg')):
+            splitSprite(img[len(in_dir):], in_dir, out_dir)
+        print("Complete!")
+    else:
+        print("Successfully Cancelled.")
+else:
+    i : int = 1
+    while i < loopfor + 1:
+        splitSprite(sys.argv[i], in_dir, out_dir)
+        i += 1

@@ -137,7 +137,7 @@ def readPathD(file : str, in_dir : str):
                 j += 1
 
     else:
-        print(f"Could not find \"{sys.argv[i]}\" in \"{in_dir}\"")
+        print(f"Could not find \"{file}\" in \"{in_dir}\"")
 
     return
 
