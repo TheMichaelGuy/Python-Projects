@@ -61,13 +61,16 @@ def hsv_to_rgb(hsv):
     rgb[..., 2] = np.select(conditions, [v, p, t, v, v, q], default=p)
     return rgb.astype('uint8')
 
-def shift_hue(arr,hout):
+def shift_hue(arr,new_hue,shift):
     hsv=rgb_to_hsv(arr)
-    hsv[...,0]=hout
+    if shift:
+        hsv[...,0] += new_hue
+    else:
+        hsv[...,0] = new_hue
     rgb=hsv_to_rgb(hsv)
     return rgb
 
-def huePrism(filename : str, in_dir : str, out_dir : str):
+def huePrism(filename : str, in_dir : str, out_dir : str, shift : bool):
 
     img = Image.open(in_dir + filename).convert('RGBA')
     arr = np.array(img)
@@ -85,7 +88,7 @@ def huePrism(filename : str, in_dir : str, out_dir : str):
     }
 
     for hue in hues:
-        new_img = Image.fromarray(shift_hue(arr,hues[hue]), 'RGBA')
+        new_img = Image.fromarray(shift_hue(arr,hues[hue],shift), 'RGBA')
         new_img.save(str(out_dir + name + "_" + hue + extension))
 
     gray_img = Image.open(in_dir + filename).convert('LA')
@@ -104,5 +107,5 @@ out_dir = "output/"
 if __name__=='__main__':
     i : int = 1
     while i < loopfor + 1:
-        huePrism(argv[i], in_dir, out_dir)
+        huePrism(argv[i], in_dir, out_dir, True)
         i += 1
