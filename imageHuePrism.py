@@ -14,7 +14,14 @@
 from PIL import Image
 from sys import argv
 from os import path
+from pathlib import Path
 import numpy as np
+
+def input_validation(input : str):
+    input = input.capitalize()
+    if input in ["1", "Y", "YES"]:
+        return True
+    return False
 
 def rgb_to_hsv(rgb):
     # Translated from source of colorsys.rgb_to_hsv
@@ -61,7 +68,7 @@ def hsv_to_rgb(hsv):
     rgb[..., 2] = np.select(conditions, [v, p, t, v, v, q], default=p)
     return rgb.astype('uint8')
 
-def shift_hue(arr,new_hue,shift):
+def shift_hue(arr, new_hue, shift):
     hsv=rgb_to_hsv(arr)
     if shift:
         hsv[...,0] += new_hue
@@ -70,7 +77,7 @@ def shift_hue(arr,new_hue,shift):
     rgb=hsv_to_rgb(hsv)
     return rgb
 
-def huePrism(filename : str, in_dir : str, out_dir : str, shift : bool):
+def huePrism(filename : str, in_dir : str, out_dir : str, shift : bool, split_by_directory : bool):
 
     img = Image.open(in_dir + filename).convert('RGBA')
     arr = np.array(img)
@@ -89,23 +96,42 @@ def huePrism(filename : str, in_dir : str, out_dir : str, shift : bool):
 
     for hue in hues:
         new_img = Image.fromarray(shift_hue(arr,hues[hue],shift), 'RGBA')
-        new_img.save(str(out_dir + name + "_" + hue + extension))
+        if split_by_directory:
+            Path(out_dir + hue).mkdir(parents=True, exist_ok=True)
+            new_img.save(str(out_dir + hue + "/" + name + extension))
+        else:
+            new_img.save(str(out_dir + name + "_" + hue + extension))
 
     gray_img = Image.open(in_dir + filename).convert('LA')
-    gray_img.save(str(out_dir + name + "_gray"+ extension))
-
-loopfor : int = len(argv) - 1
-if loopfor < 1:
-    print("Enter filenames as additional command line arguments")
-    exit
-
-print(argv)
+    if split_by_directory:
+        Path(out_dir + "gray").mkdir(parents=True, exist_ok=True)
+        gray_img.save(str(out_dir + "gray/" + name + extension))
+    else:
+        gray_img.save(str(out_dir + name + "_gray"+ extension))
 
 in_dir = "input/"
 out_dir = "output/"
+loopfor : int = len(argv) - 1
 
-if __name__=='__main__':
-    i : int = 1
-    while i < loopfor + 1:
-        huePrism(argv[i], in_dir, out_dir, True)
-        i += 1
+shift = input_validation(input("Do you want to shift hues instead of set hues? [y/n]: "))
+split_by_directory = input_validation(input("Do you want to split output by directories instead of name? [y/n]: "))
+#print(f"shift {shift} directory {split_by_directory}")
+
+if loopfor < 1:
+    for img in Path(in_dir).rglob("*.png"):
+        img_str = str(img)
+        
+        #print(str(img)[len(in_dir):])
+        my_img = img_str[len(in_dir):]
+        endpoint = my_img.rfind("\\")
+        #print(f"backslash\\ {img_str[endpoint]}")
+        new_in_dir = in_dir + my_img[0:endpoint] + "/"
+        new_out_dir = out_dir + my_img[0:endpoint] + "/"
+        #print(f"my_img {my_img}, endpoint {endpoint}, new in {new_in_dir}, new out {new_out_dir}")
+        huePrism(img.name, new_in_dir, new_out_dir, shift, split_by_directory)
+else:
+    if __name__=='__main__':
+        i : int = 1
+        while i < loopfor + 1:
+            huePrism(argv[i], in_dir, out_dir, shift, split_by_directory)
+            i += 1
