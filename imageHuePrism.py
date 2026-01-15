@@ -125,10 +125,13 @@ if loopfor < 1:
         my_img = img_str[len(in_dir):]
         endpoint = my_img.rfind("\\")
         #print(f"backslash\\ {img_str[endpoint]}")
-        new_in_dir = in_dir + my_img[0:endpoint] + "/"
-        new_out_dir = out_dir + my_img[0:endpoint] + "/"
-        #print(f"my_img {my_img}, endpoint {endpoint}, new in {new_in_dir}, new out {new_out_dir}")
-        huePrism(img.name, new_in_dir, new_out_dir, shift, split_by_directory)
+        if endpoint != -1:
+            new_in_dir = in_dir + my_img[0:endpoint] + "/"
+            new_out_dir = out_dir + my_img[0:endpoint] + "/"
+            print(f"my_img {my_img}, endpoint {endpoint}, new in {new_in_dir}, new out {new_out_dir}")
+            huePrism(img.name, new_in_dir, new_out_dir, shift, split_by_directory)
+        else:
+            huePrism(img.name, in_dir, out_dir, shift, split_by_directory)
 else:
     if __name__=='__main__':
         i : int = 1
