@@ -8,15 +8,25 @@ from zipfile import ZipFile
 from json import load
 from sys import argv
 
-def extract_costumes(sprite_zip : str, in_dir : str, out_dir : str):
+def extract_costumes(sprite_zip : str, in_dir : str, out_dir : str, use_header : bool):
 
     with ZipFile(in_dir + sprite_zip, 'r') as z:
         with z.open('sprite.json') as f:
             sprite_data = load(f)
+        if use_header:
+            for i, costume in enumerate(sprite_data.get("costumes", [])):
+                with z.open(costume["md5ext"]) as src, open(out_dir + str(i + 1) + "_" + costume["name"] + "." + costume["dataFormat"], "wb") as dst:
+                    dst.write(src.read())
+        else:
+            for costume in sprite_data.get("costumes", []):
+                with z.open(costume["md5ext"]) as src, open(out_dir + costume["name"] + "." + costume["dataFormat"], "wb") as dst:
+                    dst.write(src.read())
 
-        for costume in sprite_data.get("costumes", []):
-            with z.open(costume["md5ext"]) as src, open(out_dir + costume["name"] + "." + costume["dataFormat"], "wb") as dst:
-                dst.write(src.read())
+def input_validation(input : str):
+    input = input.capitalize()
+    if input in ["1", "Y", "YES"]:
+        return True
+    return False
 
 loopfor : int = len(argv) - 1
 if loopfor < 1:
@@ -30,6 +40,8 @@ out_dir = "output/"
 
 if __name__=='__main__':
     i : int = 1
+    use_header = input_validation(input("Do you want to add numbers to order the sprites? [y/n]:"))
     while i < loopfor + 1:
-        extract_costumes(argv[i], in_dir, out_dir)
+
+        extract_costumes(argv[i], in_dir, out_dir, use_header)
         i += 1
