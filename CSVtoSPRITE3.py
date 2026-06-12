@@ -146,12 +146,6 @@ print(argv)
 
 loopfor : int = len(argv) - 1
 
-# Set Filename
-sprite_name = "Sprite"
-if loopfor >= 1:
-    sprite_name = argv[1]
-    #print(sprite_name)
-
 # Other Arguments (might add to argv)
 in_dir = "input/"
 out_dir = "output/"
@@ -167,18 +161,18 @@ incrementer = 1
 
 # Loop for converting all CSVs
 try:
-    if loopfor < 2:
+    if loopfor < 1:
         # Automatic loop if no command line arguments
         print("Loop All")
         for img in glob.glob(str(in_dir + '*.csv')):
-            CSVtoSPRITE3(img[len(in_dir):], in_dir, out_dir, costume_asset, f"{sprite_name}{incrementer}", make_local)
+            CSVtoSPRITE3(img[len(in_dir):], in_dir, out_dir, costume_asset, img[len(in_dir):], make_local)
             incrementer += 1
     else:
         # Loop for command line arguments
         print("Loop Args")
-        i : int = 2
+        i : int = 1
         while i < loopfor + 1:
-            CSVtoSPRITE3(argv[i], in_dir, out_dir, costume_asset, f"{sprite_name}{incrementer}", make_local)
+            CSVtoSPRITE3(argv[i], in_dir, out_dir, costume_asset, argv[i], make_local)
             incrementer += 1
             i += 1
 finally:
