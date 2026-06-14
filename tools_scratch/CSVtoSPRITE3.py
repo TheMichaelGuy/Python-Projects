@@ -6,8 +6,7 @@
     Note: AI-assisted code
 
     sys arguments:
-    argv 1 = sprite name (defaults to "Sprite1")
-    argv 2 to n = csv files to convert (increments file name, leave blank to convert all CSVs)
+    argv 1 to n = csv files to convert (increments file name, leave blank to convert all CSVs)
 """
 
 import csv, json, uuid, zipfile, glob, os
