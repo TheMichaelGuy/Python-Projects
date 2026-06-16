@@ -12,24 +12,24 @@ import glob
 
 class BaseFileInfo:
 
-    header : str = "" # <svg ...
+    header: str = "" # <svg ...
     encapsulatingGroups: list[str] = [] # all g elements that encompass the entire svg, should go on every file
-    ungroupedData : list[str] = []
-    comments : list[str] = []
+    ungroupedData: list[str] = []
+    comments: list[str] = []
 
 class Collection:
 
-    def __init__(self, g : str = "<g>", index : int = -1):
-        self.groupHeader : str = g
-        self.startIndex : int = index # Collected at the start of 'isCollecting'
-    stopIndex : int = -1 # Collected at the end of 'isCollecting'
+    def __init__(self, g: str = "<g>", index: int = -1):
+        self.groupHeader: str = g
+        self.startIndex: int = index # Collected at the start of 'isCollecting'
+    stopIndex: int = -1 # Collected at the end of 'isCollecting'
 
 class DefsList:
 
-    defEntry : list[str] = []
-    defIDs : list[str] = []
+    defEntry: list[str] = []
+    defIDs: list[str] = []
 
-def findAttribute(string : str, name : str, start : int):
+def findAttribute(string: str, name: str, start: int):
     if len(string) < 1:
         return "", -1
     if start == None:
@@ -42,16 +42,16 @@ def findAttribute(string : str, name : str, start : int):
     if endPos == -1:
         return "", -1
     data = string[startPos:endPos]
-    
+
     return data, namePos
 
-def findFirstString(document : str, strings : list[str], start : int):
+def findFirstString(document: str, strings: list[str], start: int):
     if len(document) < 1:
         return -1
     if start == None:
         start = 0
-    closestString : str = None
-    closestIndex : int = -1
+    closestString: str = None
+    closestIndex: int = -1
     for string in strings:
         index = document.find(string, start)
         ##print(f"Found {string} at {index}")
@@ -61,7 +61,7 @@ def findFirstString(document : str, strings : list[str], start : int):
 
     return closestIndex, closestString
 
-def processElement(element : str):
+def processElement(element: str):
 
     elementData = re.split(" ", element, 1)
     name = elementData[0]
@@ -87,26 +87,26 @@ def processElement(element : str):
         return name, attributes, values
     return name, [], []
 
-def splitSprite(file: str, in_dir : str, out_dir : str):
+def splitSprite(file: str, in_dir: str, out_dir: str):
     inputPath = str(in_dir + file)
     outputPath = str(out_dir + file)
     if os.path.isfile(inputPath):
         with open(inputPath, "r") as input:
             document = input.read()
-        
+
             startIndex = 0 # reusing the same navigation as svgUngrouper.py
 
-            isCollecting : bool = False # whether or not the program is actively getting info for a Collection entry
-            isDefining : bool = True # the state before a collection has been detected
+            isCollecting: bool = False # whether or not the program is actively getting info for a Collection entry
+            isDefining: bool = True # the state before a collection has been detected
 
-            gBaseLayer : int = 0 # keep track of how many groups exist before a group touches a non group element
-            gCollectionLayer : int = 0 # keep track of what level we are in a group in order to exit collection mode
-            gLayer : int = None # group layering when not in collection mode
+            gBaseLayer: int = 0 # keep track of how many groups exist before a group touches a non group element
+            gCollectionLayer: int = 0 # keep track of what level we are in a group in order to exit collection mode
+            gLayer: int = None # group layering when not in collection mode
 
-            baseFile : BaseFileInfo = BaseFileInfo() # info necessary to create file 1
-            separatedFiles : list[Collection] = [] # info necessary to create files 2 to n
-            fileIndex : int = -1 # which additional file we are on
-            definitions : DefsList = DefsList() # info necessary to create files that need a defs element
+            baseFile: BaseFileInfo = BaseFileInfo() # info necessary to create file 1
+            separatedFiles: list[Collection] = [] # info necessary to create files 2 to n
+            fileIndex: int = -1 # which additional file we are on
+            definitions: DefsList = DefsList() # info necessary to create files that need a defs element
 
             while startIndex != -1:
                 startIndex, thing = findFirstString(document, ["<g>", "<g ", "</g>", "<g/>", "</", "<!--" ,"<"], startIndex)
@@ -130,14 +130,14 @@ def splitSprite(file: str, in_dir : str, out_dir : str):
                             else:
                                 gLayer += 1
                                 #print("Add that blank g to ungrouped data")
-                                baseFile.ungroupedData.append("<g>\n")          
+                                baseFile.ungroupedData.append("<g>\n")
 
                     elif thing == "<g ":
 
                         emptyElementCheck = document.find("/>", startIndex) # check for empty g element, these are not important
-                        
+
                         if emptyElementCheck == -1 or elementCloser < emptyElementCheck:
-                            gAttributes:str = document[startIndex + 3 : elementCloser]
+                            gAttributes:str = document[startIndex + 3: elementCloser]
                             ##print(f"gAttributes: {gAttributes}")
                             if isDefining:
                                 #print("We have some interesting g stuff here")
@@ -160,10 +160,10 @@ def splitSprite(file: str, in_dir : str, out_dir : str):
 
                         # grab element data
                         emptyElementCheck = document.find("/>", startIndex) # check for other empty element
-                        isEmptyElement : bool = bool(emptyElementCheck != -1 and (elementCloser == -1 or emptyElementCheck < elementCloser))
+                        isEmptyElement: bool = bool(emptyElementCheck != -1 and (elementCloser == -1 or emptyElementCheck < elementCloser))
                         if isEmptyElement:
                             elementCloser = emptyElementCheck
-                        elementAttributes : str = document[startIndex + 1: elementCloser]
+                        elementAttributes: str = document[startIndex + 1: elementCloser]
                         name, attributes, values = processElement(elementAttributes)
                         #print(f"big string stuff: name ({name}) attributes {attributes} values {values}")
                         if isEmptyElement:
@@ -184,7 +184,7 @@ def splitSprite(file: str, in_dir : str, out_dir : str):
                                 #split that into different def entries
                                 #advance into main svg
                                 stopIndex = document.find("</defs>", startIndex)
-                                defStartIndex : int
+                                defStartIndex: int
                                 defStopIndex: int
                                 while startIndex != -1 and stopIndex != -1 and startIndex < stopIndex:
 
@@ -192,7 +192,7 @@ def splitSprite(file: str, in_dir : str, out_dir : str):
                                     emptyElementCheck = document.find("/>", startIndex)
                                     elementCloser = document.find(">", startIndex)
                                     id, idPos = findAttribute(document, "id", startIndex)
-                                    
+
                                     ##print(f"startIndex {startIndex} stopIndex {stopIndex} tag {tag} eeC {emptyElementCheck} eClose {elementCloser} id {id} idPos {idPos}")
                                     if emptyElementCheck != 1 and emptyElementCheck < elementCloser:
                                         elementCloser = emptyElementCheck
@@ -207,9 +207,9 @@ def splitSprite(file: str, in_dir : str, out_dir : str):
                                             definitions.defIDs.append(id)
                                             defStartIndex = startIndex
                                         else: # tag == "</"
-                                            definitions.defEntry.append(document[defStartIndex : elementCloser + 1])
+                                            definitions.defEntry.append(document[defStartIndex: elementCloser + 1])
                                             #enddefentry
-                                    
+
                                     #otherwise, doesn't matter
                                     startIndex = elementCloser
 
@@ -221,9 +221,9 @@ def splitSprite(file: str, in_dir : str, out_dir : str):
                                 isDefining = False
                                 gCollectionLayer = 0
                                 gLayer = gBaseLayer
-                                
+
                                 separatedFiles.append(Collection(baseFile.encapsulatingGroups.pop(), startIndex - len(elementAttributes) - (1 if isEmptyElement else 0)))
-                            
+
                         elif isCollecting:
                             #print("pass though and increment")
                             pass
@@ -242,7 +242,7 @@ def splitSprite(file: str, in_dir : str, out_dir : str):
                                 # This is for that tspan edge case that could apply to a slim amount of other attribites
                                 if not isEmptyElement and (document.find(">" ,startIndex) != -1 and document.find("<" ,startIndex) != -1) and (document.find("<" ,startIndex) - document.find(">" ,startIndex) > 1):
                                     #print("THE TSPAN! THE TSPAN IS REAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL!")
-                                    baseFile.ungroupedData.append(document[document.find(">" ,startIndex) + 1 : document.find("<" ,startIndex)])
+                                    baseFile.ungroupedData.append(document[document.find(">" ,startIndex) + 1: document.find("<" ,startIndex)])
 
                     elif thing == "</g>":
                         if isDefining:
@@ -260,12 +260,12 @@ def splitSprite(file: str, in_dir : str, out_dir : str):
                             #print("unpeeling after atleast one collection")
                             baseFile.ungroupedData.append("</g>")
                             gLayer -= 1
-  
+
                         #gElementAttributes.pop() # There can't be more end tags than start tags in valid, usable xml.
                         startIndex += 4
 
                     elif thing == "</":
-                        elementName : str =  document[startIndex + 1: elementCloser]
+                        elementName: str =  document[startIndex + 1: elementCloser]
                         #print(f"closing {elementName}")
                         #output.write("<" + elementName + ">\n")
                         if not (isDefining or isCollecting):
@@ -275,12 +275,12 @@ def splitSprite(file: str, in_dir : str, out_dir : str):
                     elif thing == "<!--":
                         #print("We'll need to copy this comment")
                         commentCloser = document.find("-->", startIndex)
-                        baseFile.comments.append("<!--" + document[startIndex + 4 : commentCloser] + "-->")
+                        baseFile.comments.append("<!--" + document[startIndex + 4: commentCloser] + "-->")
                         startIndex += 6
 
                     else:
-                        #print("How did we get here?")
-                        exit
+                        print("How did we get here?")
+                        exit()
 
         #print("Then, this is where we'd do the file writing")
 
@@ -307,7 +307,7 @@ def splitSprite(file: str, in_dir : str, out_dir : str):
         ##print("DEFS")
         ##print(definitions.defEntry)
 
-        myDefs : list[str] = []
+        myDefs: list[str] = []
         for defs in range(len(definitions.defIDs)):
             for line in baseFile.ungroupedData:
                 if line.find("url(#" + definitions.defIDs[defs] + ")") != -1:
@@ -326,12 +326,12 @@ def splitSprite(file: str, in_dir : str, out_dir : str):
                 output.write(other)
             for comment in baseFile.comments:
                 output.write(comment)
-    
-        counter : int = 1
+
+        counter: int = 1
         for collection in separatedFiles:
             counter += 1
-            someDefs : list[str] = []
-            content : str = document[collection.startIndex : collection.stopIndex]
+            someDefs: list[str] = []
+            content: str = document[collection.startIndex: collection.stopIndex]
             for defs in range(len(definitions.defIDs)):
                 #print(definitions.defIDs[defs])
                 if content.find("url(#" + definitions.defIDs[defs] + ")") != -1:
@@ -356,21 +356,46 @@ def splitSprite(file: str, in_dir : str, out_dir : str):
 
     return
 
-in_dir : str = "input/"
-out_dir : str = "output/"
-loopfor : int = len(sys.argv) - 1
+# importlib execution
+def main(*args):
 
-if loopfor < 1:
-    answer = input("You entered no command line arguments. If you continue, svgSpriteSplitter.svg will run on all of your SVGs which may take a lot of time or space. Enter 'Y' to proceed or anything else to exit: ")
-    if answer == 'Y':
-        print("Continuing...")
-        for img in glob.glob(str(in_dir + '*.svg')):
-            splitSprite(img[len(in_dir):], in_dir, out_dir)
-        print("Complete!")
+    in_dir: str = args[0]
+    out_dir: str = args[1]
+    leng: int = len(args)
+
+    if leng < 3:
+        answer = input("You entered no command line arguments. If you continue, svgSpriteSplitter.svg will run on all of your SVGs which may take a lot of time or space. Enter 'Y' to proceed or anything else to exit: ")
+        if answer == 'Y':
+            print("Continuing...")
+            for img in glob.glob(str(in_dir + '*.svg')):
+                splitSprite(img[len(in_dir):], in_dir, out_dir)
+            print("Complete!")
+        else:
+            print("Successfully Cancelled.")
     else:
-        print("Successfully Cancelled.")
-else:
-    i : int = 1
-    while i < loopfor + 1:
-        splitSprite(sys.argv[i], in_dir, out_dir)
-        i += 1
+        i: int = 2
+        while i < leng:
+            splitSprite(args[i], in_dir, out_dir)
+            i += 1
+
+# regular execution
+if __name__ == "__main__":
+
+    in_dir: str = "input/"
+    out_dir: str = "output/"
+    loopfor: int = len(sys.argv) - 1
+
+    if loopfor < 1:
+        answer = input("You entered no command line arguments. If you continue, svgSpriteSplitter.svg will run on all of your SVGs which may take a lot of time or space. Enter 'Y' to proceed or anything else to exit: ")
+        if answer == 'Y':
+            print("Continuing...")
+            for img in glob.glob(str(in_dir + '*.svg')):
+                splitSprite(img[len(in_dir):], in_dir, out_dir)
+            print("Complete!")
+        else:
+            print("Successfully Cancelled.")
+    else:
+        i: int = 1
+        while i < loopfor + 1:
+            splitSprite(sys.argv[i], in_dir, out_dir)
+            i += 1

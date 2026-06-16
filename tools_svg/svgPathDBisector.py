@@ -24,15 +24,15 @@ import glob
 import bezier # pip install bezier
 import numpy as np
 
-def findFirstChar(string : str, substr : str, start : int, end : int):
+def findFirstChar(string: str, substr: str, start: int, end: int):
     if len(string) < 1:
         return -1
     if start == None:
         start = 0
     if end == None:
         end = len(string)
-    closestChar : str = None
-    closestIndex : int = -1
+    closestChar: str = None
+    closestIndex: int = -1
     for char in substr:
         index = string.find(char, start, end)
         if (closestIndex == -1 or index < closestIndex) and index != -1:
@@ -41,24 +41,24 @@ def findFirstChar(string : str, substr : str, start : int, end : int):
 
     return closestIndex, closestChar
 
-def splitPathDCommands(dPathString : str):
+def splitPathDCommands(dPathString: str):
     if dPathString == "":
-        empty : list[list[str]] = []
+        empty: list[list[str]] = []
         return empty
-    startIndex : int = 0
-    endIndex : int = len(dPathString) - 1
-    indexes : list[int] = []
-    commands : list[str] = []
+    startIndex: int = 0
+    endIndex: int = len(dPathString) - 1
+    indexes: list[int] = []
+    commands: list[str] = []
     while startIndex != -1:
         startIndex, command = findFirstChar(dPathString, "MmLlHhVvCcSsQqTtAaZz", startIndex, endIndex)
         if startIndex != -1:
             indexes.append(startIndex + 1)
             commands.append(command)
             startIndex += 1
-    
+
     if len(indexes) == 0:
         return []
-    dPathCommands : list[list[str]] = []
+    dPathCommands: list[list[str]] = []
     i = 0
     while i < len(indexes) - 1:
         dPathCommands.append([commands[i], dPathString[indexes[i]:indexes[i + 1] - 1]])
@@ -68,22 +68,22 @@ def splitPathDCommands(dPathString : str):
         dPathCommands.append([dPathString[-1], ""])
     else:
         dPathCommands.append([commands[i], dPathString[indexes[i]:]])
-    
+
     return dPathCommands
 
-def bisectPathD(value : str):
-    pathDCommands : list[list[str]] = splitPathDCommands(value)
+def bisectPathD(value: str):
+    pathDCommands: list[list[str]] = splitPathDCommands(value)
     # isolate all numbers
     pathDNumbers = []
     for pair in pathDCommands:
         pathDNumbers.append([pair[0], re.split(",| ", pair[1])])
 
-    newStrings : list[str] = []
+    newStrings: list[str] = []
     for pair in pathDNumbers:
         if pair[0] in "lhv":
-            parameterSet : str = ""
-            delimiterBit : bool = False
-            isFirst : bool = True
+            parameterSet: str = ""
+            delimiterBit: bool = False
+            isFirst: bool = True
             for num in pair[1]:
                 num = float(num) / 2
                 if isFirst:
@@ -110,9 +110,9 @@ def bisectPathD(value : str):
             newStrings.append("c" + str(lx[1]) + "," + str(ly[1]) + " " + str(lx[2]) + "," + str(ly[2]) + " " + str(lx[3]) + "," + str(ly[3]))
             newStrings.append("c" + str(rx[1] - lx[3]) + "," + str(ry[1] - ly[3]) + " " + str(rx[2] - lx[3]) + "," + str(ry[2] - ly[3]) + " " + str(rx[3] - lx[3]) + "," + str(ry[3] - ly[3]))
         if pair[0] in "MmLTtCSsHVQq": # Coordinate Variables
-            parameterSet : str = ""
-            delimiterBit : bool = False
-            isFirst : bool = True
+            parameterSet: str = ""
+            delimiterBit: bool = False
+            isFirst: bool = True
             for num in pair[1]:
                 if isFirst:
                     parameterSet += str(num)
@@ -130,12 +130,12 @@ def bisectPathD(value : str):
         if pair[0] in "Zz": # 0 vars
             newStrings.append(str(pair[0]))
 
-    finalString : str = ""
+    finalString: str = ""
     for func in newStrings:
         finalString += func
     return finalString
 
-def bisectSVG(file : str, in_dir : str, out_dir : str):
+def bisectSVG(file: str, in_dir: str, out_dir: str):
     inputPath = str(in_dir + file)
     outputPath = str(out_dir + file)
 
@@ -143,15 +143,15 @@ def bisectSVG(file : str, in_dir : str, out_dir : str):
         with open(inputPath, "r") as input:
             document = input.read()
         with open(outputPath, "w") as output:
-            
+
             startIndex = stopIndex = 0
             while startIndex != -1:
 
                 startIndex = document.find("path d", startIndex)
-                output.write(document[stopIndex : startIndex])
+                output.write(document[stopIndex: startIndex])
                 if startIndex != -1:
                     stopIndex = document.find("\"", startIndex + 8)
-                    value : str = document[startIndex + 8: stopIndex]
+                    value: str = document[startIndex + 8: stopIndex]
 
                     newValue = bisectPathD(value)
 
@@ -165,16 +165,33 @@ def bisectSVG(file : str, in_dir : str, out_dir : str):
 
     return
 
-in_dir : str = "input/"
-out_dir : str = "output/"
-loopfor : int = len(sys.argv)
+# importlib execution
+def main(*args):
+    in_dir: str = args[0]
+    out_dir: str = args[1]
+    leng: int = len(args)
 
-if loopfor < 2:
-    for img in glob.glob(str(in_dir + '*.svg')):
-        print(f"FOR IMAGE: {img}")
-        bisectSVG(img[len(in_dir):], in_dir, out_dir)
-else:
-    i : int = 1
-    while i < loopfor:
-        bisectSVG(sys.argv[i], in_dir, out_dir)
-        i += 1
+    if leng < 3:
+        for img in glob.glob(str(in_dir + '*.svg')):
+            bisectSVG(img[len(in_dir):], in_dir, out_dir)
+    else:
+        i: int = 2
+        while i < leng:
+            bisectSVG(args[i], in_dir, out_dir)
+            i += 1
+
+# regular execution
+if __name__ == "__main__":
+    in_dir: str = "input/"
+    out_dir: str = "output/"
+    loopfor: int = len(sys.argv)
+
+    if loopfor < 2:
+        for img in glob.glob(str(in_dir + '*.svg')):
+            print(f"FOR IMAGE: {img}")
+            bisectSVG(img[len(in_dir):], in_dir, out_dir)
+    else:
+        i: int = 1
+        while i < loopfor:
+            bisectSVG(sys.argv[i], in_dir, out_dir)
+            i += 1

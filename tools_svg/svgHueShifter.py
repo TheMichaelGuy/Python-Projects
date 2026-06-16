@@ -10,16 +10,16 @@ import os
 import sys
 import glob
 
-def hexToRGB(hexCode : str):
+def hexToRGB(hexCode: str):
     if len(hexCode) != 6:
         return
-    
+
     red = int(hexCode[0:2],16)
     green = int(hexCode[2:4],16)
     blue = int(hexCode[4:],16)
     return red, green, blue
 
-def RGBToHex(red : int, green : int, blue : int):
+def RGBToHex(red: int, green: int, blue: int):
     R = str(hex(red))[2:]
     G = str(hex(green))[2:]
     B = str(hex(blue))[2:]
@@ -31,7 +31,7 @@ def RGBToHex(red : int, green : int, blue : int):
         B = "0" + B
     return str(R + G + B)
 
-def hueShifter(hexCode : str, hueOffset : float):
+def hueShifter(hexCode: str, hueOffset: float):
     if len(hexCode) != 6 or hueOffset < 0 or hueOffset > 1:
         return
     R,G,B = hexToRGB(hexCode)
@@ -51,7 +51,7 @@ def hueShifter(hexCode : str, hueOffset : float):
     newCode = RGBToHex(int(R),int(G),int(B))
     return newCode
 
-def hueShiftSVG(file : str, in_dir : str, out_dir : str):
+def hueShiftSVG(file: str, in_dir: str, out_dir: str, hueOffset: float):
     inputPath = str(in_dir + file)
     outputPath = str(out_dir + file)
 
@@ -60,7 +60,7 @@ def hueShiftSVG(file : str, in_dir : str, out_dir : str):
             document = input.read()
         with open(outputPath, "w") as output:
             startIndex = stopIndex = 0
-            
+
             while stopIndex != -1:
                 stopIndex = document.find('="#', startIndex)
 
@@ -76,24 +76,45 @@ def hueShiftSVG(file : str, in_dir : str, out_dir : str):
         print(f"Could not find \"{file}\" in \"{in_dir}\"")
     return
 
-in_dir : str = "input/"
-out_dir : str = "output/"
-loopfor : int = len(sys.argv) - 1
+# importlib execution
+def main(*args):
+    in_dir: str = args[0]
+    out_dir: str = args[1]
+    leng: int = len(args)
+    hueOffset: float = float(input("Enter Hue value to shift (a value between 0 and 1): "))
+    if hueOffset < 0 or hueOffset > 1:
+        print("The second argument must be a value between 0 and 1. That's the hue shift.")
+        exit()
 
-if loopfor < 1:
-    print("No command line arguments")
-    exit
+    if leng < 3:
+        for img in glob.glob(str(in_dir + '*.svg')):
+            hueShiftSVG(img[len(in_dir):], in_dir, out_dir, hueOffset)
+    else:
+        i: int = 2
+        while i < leng:
+            hueShiftSVG(args[i], in_dir, out_dir, hueOffset)
+            i += 1
 
-hueOffset : float = float(sys.argv[1])
-if hueOffset < 0 or hueOffset > 1:
-    print("The second argument must be a value between 0 and 1. That's the hue shift.")
-    exit
+# regular execution
+if __name__ == "__main__":
+    in_dir: str = "input/"
+    out_dir: str = "output/"
+    loopfor: int = len(sys.argv) - 1
 
-if loopfor < 2:
-    for img in glob.glob(str(in_dir + '*.svg')):
-        hueShiftSVG(img[len(in_dir):], in_dir, out_dir)
-else:
-    i : int = 2
-    while i < loopfor + 1:
-        hueShiftSVG(sys.argv[i], in_dir, out_dir)
-        i += 1
+    if loopfor < 1:
+        print("No command line arguments")
+        exit()
+
+    hueOffset: float = float(sys.argv[1])
+    if hueOffset < 0 or hueOffset > 1:
+        print("The second argument must be a value between 0 and 1. That's the hue shift.")
+        exit()
+
+    if loopfor < 2:
+        for img in glob.glob(str(in_dir + '*.svg')):
+            hueShiftSVG(img[len(in_dir):], in_dir, out_dir, hueOffset)
+    else:
+        i: int = 2
+        while i < loopfor + 1:
+            hueShiftSVG(sys.argv[i], in_dir, out_dir, hueOffset)
+            i += 1

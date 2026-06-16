@@ -14,15 +14,15 @@ import os
 import sys
 import glob
 
-def findFirstChar(string : str, substr : str, start : int, end : int):
+def findFirstChar(string: str, substr: str, start: int, end: int):
     if len(string) < 1:
         return -1
     if start == None:
         start = 0
     if end == None:
         end = len(string)
-    closestChar : str = None
-    closestIndex : int = -1
+    closestChar: str = None
+    closestIndex: int = -1
     for char in substr:
         index = string.find(char, start, end)
         if (closestIndex == -1 or index < closestIndex) and index != -1:
@@ -31,24 +31,24 @@ def findFirstChar(string : str, substr : str, start : int, end : int):
 
     return closestIndex, closestChar
 
-def splitPathDCommands(dPathString : str):
+def splitPathDCommands(dPathString: str):
     if dPathString == "":
-        empty : list[list[str]] = []
+        empty: list[list[str]] = []
         return empty
-    startIndex : int = 0
-    endIndex : int = len(dPathString) - 1
-    indexes : list[int] = []
-    commands : list[str] = []
+    startIndex: int = 0
+    endIndex: int = len(dPathString) - 1
+    indexes: list[int] = []
+    commands: list[str] = []
     while startIndex != -1:
         startIndex, command = findFirstChar(dPathString, "MmLlHhVvCcSsQqTtAaZz", startIndex, endIndex)
         if startIndex != -1:
             indexes.append(startIndex + 1)
             commands.append(command)
             startIndex += 1
-    
+
     if len(indexes) == 0:
         return []
-    dPathCommands : list[list[str]] = []
+    dPathCommands: list[list[str]] = []
     i = 0
     while i < len(indexes) - 1:
         dPathCommands.append([commands[i], dPathString[indexes[i]:indexes[i + 1] - 1]])
@@ -58,11 +58,11 @@ def splitPathDCommands(dPathString : str):
         dPathCommands.append([dPathString[-1], ""])
     else:
         dPathCommands.append([commands[i], dPathString[indexes[i]:]])
-    
+
     return dPathCommands
 
-def processPathD(value : str):
-    pathDCommands : list[list[str]] = splitPathDCommands(value)
+def processPathD(value: str):
+    pathDCommands: list[list[str]] = splitPathDCommands(value)
     # isolate all numbers
     pathDNumbers = []
     for pair in pathDCommands:
@@ -111,16 +111,16 @@ def processPathD(value : str):
         elif pair[0] == "z":
             print(f"z: ClosePath")
         else:
-            print("Unknown Element")    
+            print("Unknown Element")
 
     return
 
-def readPathD(file : str, in_dir : str):
+def readPathD(file: str, in_dir: str):
     inputPath = str(in_dir + file)
     if os.path.isfile(inputPath):
         with open(inputPath, "r") as input:
             document = input.read()
-            
+
         startIndex = stopIndex = 0
         j = 1
         while startIndex != -1:
@@ -128,7 +128,7 @@ def readPathD(file : str, in_dir : str):
             startIndex = document.find("path d", startIndex)
             if startIndex != -1:
                 stopIndex = document.find("\"", startIndex + 8)
-                value : str = document[startIndex + 8: stopIndex]
+                value: str = document[startIndex + 8: stopIndex]
 
                 print(f"PATH {j}")
                 processPathD(value)
@@ -141,16 +141,35 @@ def readPathD(file : str, in_dir : str):
 
     return
 
-in_dir : str = "input/"
-out_dir : str = "output/"
-loopfor : int = len(sys.argv)
+# importlib execution
+def main(*args):
 
-if loopfor < 2:
-    for img in glob.glob(str(in_dir + '*.svg')):
-        print(f"FOR IMAGE: {img}")
-        readPathD(img[len(in_dir):], in_dir)
-else:
-    i : int = 1
-    while i < loopfor:
-        readPathD(sys.argv[i], in_dir)
-        i += 1
+    in_dir: str = args[0]
+    out_dir: str = args[1]
+    leng: int = len(args)
+
+    if leng < 3:
+        for img in glob.glob(str(in_dir + '*.svg')):
+            readPathD(img[len(in_dir):], in_dir)
+    else:
+        i: int = 2
+        while i < leng:
+            readPathD(args[i], in_dir)
+            i += 1
+
+# regular execution
+if __name__ == "__main__":
+
+    in_dir: str = "input/"
+    out_dir: str = "output/"
+    loopfor: int = len(sys.argv)
+
+    if loopfor < 2:
+        for img in glob.glob(str(in_dir + '*.svg')):
+            print(f"FOR IMAGE: {img}")
+            readPathD(img[len(in_dir):], in_dir)
+    else:
+        i: int = 1
+        while i < loopfor:
+            readPathD(sys.argv[i], in_dir)
+            i += 1

@@ -7,16 +7,17 @@
 """
 
 import os
-import sys
+from sys import argv
 import re
+import glob
 
-def findFirstString(document : str, strings : list[str], start : int):
+def findFirstString(document: str, strings: list[str], start: int):
     if len(document) < 1:
         return -1
     if start == None:
         start = 0
-    closestString : str = None
-    closestIndex : int = -1
+    closestString: str = None
+    closestIndex: int = -1
     for string in strings:
         index = document.find(string, start)
         #print(f"Found {string} at {index}")
@@ -26,7 +27,7 @@ def findFirstString(document : str, strings : list[str], start : int):
 
     return closestIndex, closestString
 
-def processElement(element : str):
+def processElement(element: str):
 
     elementData = re.split(" ", element, 1)
     name = elementData[0]
@@ -52,18 +53,9 @@ def processElement(element : str):
         return name, attributes, values
     return name, [], []
 
-in_dir : str = "input/"
-out_dir : str = "output/"
-loopfor : int = len(sys.argv) - 1
-
-if loopfor < 1:
-    print("No command line arguments")
-    exit
-
-i : int = 1
-while i < loopfor + 1:
-    inputPath = str(in_dir + sys.argv[i])
-    outputPath = str(out_dir + sys.argv[i])
+def ungroupSVG(file: str, in_dir: str, out_dir: str):
+    inputPath = str(in_dir + file)
+    outputPath = str(out_dir + file)
 
     if os.path.isfile(inputPath):
         with open(inputPath, "r") as input:
@@ -86,24 +78,24 @@ while i < loopfor + 1:
 
                     elif thing == "<g ":
                         emptyElementCheck = document.find("/>", startIndex) # check for empty g element, these are not important
-                        
+
                         if emptyElementCheck == -1 or elementCloser < emptyElementCheck:
-                            gAttributes:str = document[startIndex + 3 : elementCloser]
+                            gAttributes:str = document[startIndex + 3: elementCloser]
                             #print(f"gAttributes: {gAttributes}")
 
                             gElementAttributes.append(gAttributes)
-                            
+
                             startIndex += 2 + len(gAttributes)
                     elif thing == "<":
                         emptyElementCheck = document.find("/>", startIndex) # check for other empty element
 
                         if emptyElementCheck != -1 and (elementCloser == -1 or emptyElementCheck < elementCloser):
                             #print("empty element")
-                            elementAttributes : str = document[startIndex + 1: emptyElementCheck]
+                            elementAttributes: str = document[startIndex + 1: emptyElementCheck]
                             output.write("<")
-                            bigString : str = elementAttributes
+                            bigString: str = elementAttributes
 
-                            j : int = len(gElementAttributes) - 1
+                            j: int = len(gElementAttributes) - 1
                             while j >= 0:
                                 bigString = bigString + gElementAttributes[j]
                                 j -= 1
@@ -119,11 +111,11 @@ while i < loopfor + 1:
                             startIndex += 1 + len(elementAttributes)
                         else:
                             #print("not empty element")
-                            elementAttributes : str = document[startIndex + 1: elementCloser]
+                            elementAttributes: str = document[startIndex + 1: elementCloser]
                             output.write("<")
-                            bigString : str = elementAttributes
+                            bigString: str = elementAttributes
 
-                            j : int = len(gElementAttributes) - 1
+                            j: int = len(gElementAttributes) - 1
                             while j >= 0:
                                 bigString = bigString + gElementAttributes[j]
                                 j -= 1
@@ -142,7 +134,7 @@ while i < loopfor + 1:
                         startIndex += 4
 
                     elif thing == "</":
-                        elementName : str =  document[startIndex + 1: elementCloser]
+                        elementName: str =  document[startIndex + 1: elementCloser]
                         output.write("<" + elementName + ">\n")
 
                         startIndex += 0 + len(elementName)
@@ -152,8 +144,40 @@ while i < loopfor + 1:
 
                     else:
                         print("How did we get here?")
-                        exit      
+                        exit()
 
     else:
-        print(f"Could not find \"{sys.argv[i]}\" in \"{in_dir}\"")
-    i += 1
+        print(f"Could not find \"{file}\" in \"{in_dir}\"")
+
+# importlib execution
+def main(*args):
+
+    in_dir: str = args[0]
+    out_dir: str = args[1]
+    leng: int = len(args)
+
+    if leng < 3:
+        for img in glob.glob(str(in_dir + '*.svg')):
+            ungroupSVG(img[len(in_dir):], in_dir, out_dir)
+    else:
+        i: int = 2
+        while i < leng:
+            ungroupSVG(args[i], in_dir, out_dir)
+            i += 1
+
+# regular execution
+if __name__ == "__main__":
+
+    in_dir: str = "input/"
+    out_dir: str = "output/"
+    loopfor: int = len(argv) - 1
+
+    if loopfor < 1:
+        for img in glob.glob(str(in_dir + '*.svg')):
+            ungroupSVG(img[len(in_dir):], in_dir, out_dir)
+
+    else:
+        i: int = 1
+        while i < loopfor + 1:
+            ungroupSVG(argv[i], in_dir, out_dir)
+            i += 1

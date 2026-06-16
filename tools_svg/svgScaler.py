@@ -14,15 +14,15 @@ import glob
 # https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d
 # https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/linearGradient
 
-def findFirstChar(string : str, substr : str, start : int, end : int):
+def findFirstChar(string: str, substr: str, start: int, end: int):
     if len(string) < 1:
         return -1
     if start == None:
         start = 0
     if end == None:
         end = len(string)
-    closestChar : str = None
-    closestIndex : int = -1
+    closestChar: str = None
+    closestIndex: int = -1
     for char in substr:
         index = string.find(char, start, end)
         if (closestIndex == -1 or index < closestIndex) and index != -1:
@@ -31,13 +31,13 @@ def findFirstChar(string : str, substr : str, start : int, end : int):
 
     return closestIndex, closestChar
 
-def findFirstString(document : str, strings : list[str], start : int): # this could definitely be optimized with a priority queue in the main program
+def findFirstString(document: str, strings: list[str], start: int): # this could definitely be optimized with a priority queue in the main program
     if len(document) < 1:
         return -1
     if start == None:
         start = 0
-    closestString : str = None
-    closestIndex : int = -1
+    closestString: str = None
+    closestIndex: int = -1
     for string in strings:
         index = document.find(string, start)
         if (closestIndex == -1 or index < closestIndex) and index != -1:
@@ -46,24 +46,24 @@ def findFirstString(document : str, strings : list[str], start : int): # this co
 
     return closestIndex, closestString
 
-def splitPathDCommands(dPathString : str):
+def splitPathDCommands(dPathString: str):
     if dPathString == "":
-        empty : list[list[str]] = []
+        empty: list[list[str]] = []
         return empty
-    startIndex : int = 0
-    endIndex : int = len(dPathString) - 1
-    indexes : list[int] = []
-    commands : list[str] = []
+    startIndex: int = 0
+    endIndex: int = len(dPathString) - 1
+    indexes: list[int] = []
+    commands: list[str] = []
     while startIndex != -1:
         startIndex, command = findFirstChar(dPathString, "MmLlHhVvCcSsQqTtAaZz", startIndex, endIndex)
         if startIndex != -1:
             indexes.append(startIndex + 1)
             commands.append(command)
             startIndex += 1
-    
+
     if len(indexes) == 0:
         return []
-    dPathCommands : list[list[str]] = []
+    dPathCommands: list[list[str]] = []
     i = 0
     while i < len(indexes) - 1:
         dPathCommands.append([commands[i], dPathString[indexes[i]:indexes[i + 1] - 1]])
@@ -73,10 +73,10 @@ def splitPathDCommands(dPathString : str):
         dPathCommands.append([dPathString[-1], ""])
     else:
         dPathCommands.append([commands[i], dPathString[indexes[i]:]])
-    
+
     return dPathCommands
 
-def scalePathCommands(dPathCommands : list[list[str]], multiplier : float):
+def scalePathCommands(dPathCommands: list[list[str]], multiplier: float):
     if not dPathCommands:
         return ""
     # isolate all numbers
@@ -84,12 +84,12 @@ def scalePathCommands(dPathCommands : list[list[str]], multiplier : float):
     for pair in dPathCommands:
         dPathNumbers.append([pair[0], re.split(",| ", pair[1])])
     # apply multiplication to necessary numbers
-    newStrings : list[str] = []
+    newStrings: list[str] = []
     for pair in dPathNumbers:
         if pair[0] in "MmLlTtCcSsHhVvQq": # Coordinate Variables
-            parameterSet : str = ""
-            delimiterBit : bool = False
-            isFirst : bool = True
+            parameterSet: str = ""
+            delimiterBit: bool = False
+            isFirst: bool = True
             for num in pair[1]:
                 num = multiplier * float(num)
                 if isFirst:
@@ -114,19 +114,19 @@ def scalePathCommands(dPathCommands : list[list[str]], multiplier : float):
             newStrings.append(str(pair[0]))
 
     # rejoin all strings appropriately
-    finalString : str = ""
+    finalString: str = ""
     for func in newStrings:
         finalString += func
     return finalString
 
-def scaleValue(text : str, multiplier : float):
+def scaleValue(text: str, multiplier: float):
     try:
         output = str(multiplier * float(text))
-    except: 
+    except:
         output = text
     return output
 
-def scaleTranslate(text : str, multiplier : float):
+def scaleTranslate(text: str, multiplier: float):
     if text[0:10] != "translate(":
         return text
     pair = text[10:-1]
@@ -135,7 +135,7 @@ def scaleTranslate(text : str, multiplier : float):
     v2 = multiplier * float(v2)
     return "translate(" + str(v1) + "," + str(v2) + ")"
 
-def scaleViewBox(text: str, multiplier : float):
+def scaleViewBox(text: str, multiplier: float):
     box = text.split(",")
     newViewBox = ""
     isfirst = True
@@ -144,10 +144,10 @@ def scaleViewBox(text: str, multiplier : float):
         isfirst = False
     return newViewBox
 
-def scalePathD(text : str, multiplier : float):
+def scalePathD(text: str, multiplier: float):
     return scalePathCommands(splitPathDCommands(text), multiplier)
 
-def scaleSVG(file : str, in_dir : str, out_dir : str):
+def scaleSVG(file: str, in_dir: str, out_dir: str, multiplier:float):
     inputPath = str(in_dir + file)
     outputPath = str(out_dir + file)
 
@@ -157,16 +157,16 @@ def scaleSVG(file : str, in_dir : str, out_dir : str):
         with open(outputPath, "w") as output:
 
             startIndex = stopIndex = 0
-            attributes : list[str] = ["width", "height", "viewBox", "x1", "y1", "x2", "y2", "g transform", "path d", "stroke-width"]
+            attributes: list[str] = ["width", "height", "viewBox", "x1", "y1", "x2", "y2", "g transform", "path d", "stroke-width"]
             while startIndex != -1:
-                
+
                 startIndex, result = findFirstString(document, attributes, startIndex)
-                output.write(document[stopIndex : startIndex])
+                output.write(document[stopIndex: startIndex])
                 if startIndex != -1:
 
                     stopIndex = document.find("\"", startIndex + len(result) + 2)
-                    value : str = document[startIndex + len(result) + 2: stopIndex]
-                    newValue : str
+                    value: str = document[startIndex + len(result) + 2: stopIndex]
+                    newValue: str
                     if(result in ["width", "height", "stroke-width", "x1", "y1", "x2", "y2"]):
                         newValue = scaleValue(value, multiplier)
                     elif(result == "viewBox"):
@@ -182,21 +182,39 @@ def scaleSVG(file : str, in_dir : str, out_dir : str):
         print(f"Could not find \"{file}\" in \"{in_dir}\"")
     return
 
-in_dir : str = "input/"
-out_dir : str = "output/"
-loopfor : int = len(sys.argv) - 1
+# importlib execution
+def main(*args):
+    in_dir: str = args[0]
+    out_dir: str = args[1]
+    leng: int = len(args)
+    multiplier: float = float(input("Enter scale multiplier: "))
 
-if loopfor < 1:
-    print("No command line arguments")
-    exit
+    if leng < 3:
+        for img in glob.glob(str(in_dir + '*.svg')):
+            scaleSVG(img[len(in_dir):], in_dir, out_dir, multiplier)
+    else:
+        i: int = 2
+        while i < leng:
+            scaleSVG(args[i], in_dir, out_dir, multiplier)
+            i += 1
 
-multiplier = float(sys.argv[1])
+# regular execution
+if __name__ == "__main__":
+    in_dir: str = "input/"
+    out_dir: str = "output/"
+    loopfor: int = len(sys.argv) - 1
 
-if loopfor < 2:
-    for img in glob.glob(str(in_dir + '*.svg')):
-        scaleSVG(img[len(in_dir):], in_dir, out_dir)
-else:
-    i : int = 2
-    while i < loopfor + 1:
-        scaleSVG(sys.argv[i], in_dir, out_dir)
-        i += 1
+    if loopfor < 1:
+        print("No command line arguments")
+        exit(1)
+
+    multiplier = float(sys.argv[1])
+
+    if loopfor < 2:
+        for img in glob.glob(str(in_dir + '*.svg')):
+            scaleSVG(img[len(in_dir):], in_dir, out_dir, multiplier)
+    else:
+        i: int = 2
+        while i < loopfor + 1:
+            scaleSVG(sys.argv[i], in_dir, out_dir, multiplier)
+            i += 1
