@@ -11,9 +11,23 @@ from PIL import Image # pip install Pillow
 import glob
 import os
 
-in_dir = "input/"
-out_dir = 'output/'
-for img in glob.glob(str(in_dir + '*.bmp')):
-    name = img[img.find(os.path.basename(img)):img.find(".bmp")]
-    print(f"converted {name}")
-    Image.open(img).save(os.path.join(out_dir, name + '.jpg'))
+# importlib execution
+def main(*args):
+
+    in_dir: str = args[0]
+    out_dir: str = args[1]
+    #leng: int = len(args)
+
+    for img in glob.glob(str(in_dir + '*.bmp')):
+        name = img[img.find(os.path.basename(img)):img.find(".bmp")]
+        print(f"converted {name}")
+        Image.open(img).save(os.path.join(out_dir, name + '.jpg'))
+
+# regular execution
+if __name__ == "__main__":
+    in_dir = "input/"
+    out_dir = 'output/'
+    for img in glob.glob(str(in_dir + '*.bmp')):
+        name = img[img.find(os.path.basename(img)):img.find(".bmp")]
+        print(f"converted {name}")
+        Image.open(img).save(os.path.join(out_dir, name + '.jpg'))

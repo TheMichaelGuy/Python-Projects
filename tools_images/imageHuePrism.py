@@ -16,6 +16,7 @@ from sys import argv
 from os import path
 from pathlib import Path
 import numpy as np
+import glob
 
 def input_validation(input : str):
     input = input.capitalize()
@@ -109,31 +110,65 @@ def huePrism(filename : str, in_dir : str, out_dir : str, shift : bool, split_by
     else:
         gray_img.save(str(out_dir + name + "_gray"+ extension))
 
-in_dir = "input/"
-out_dir = "output/"
-loopfor : int = len(argv) - 1
+# importlib execution
+def main(*args):
 
-shift = input_validation(input("Do you want to shift hues instead of set hues? [y/n]: "))
-split_by_directory = input_validation(input("Do you want to split output by directories instead of name? [y/n]: "))
-#print(f"shift {shift} directory {split_by_directory}")
+    in_dir: str = args[0]
+    out_dir: str = args[1]
+    leng: int = len(args)
 
-if loopfor < 1:
-    for img in Path(in_dir).rglob("*.png"):
-        img_str = str(img)
-        
-        #print(str(img)[len(in_dir):])
-        my_img = img_str[len(in_dir):]
-        endpoint = my_img.rfind("\\")
-        #print(f"backslash\\ {img_str[endpoint]}")
-        if endpoint != -1:
-            new_in_dir = in_dir + my_img[0:endpoint] + "/"
-            new_out_dir = out_dir + my_img[0:endpoint] + "/"
-            print(f"my_img {my_img}, endpoint {endpoint}, new in {new_in_dir}, new out {new_out_dir}")
-            huePrism(img.name, new_in_dir, new_out_dir, shift, split_by_directory)
-        else:
-            huePrism(img.name, in_dir, out_dir, shift, split_by_directory)
-else:
-    if __name__=='__main__':
+    shift: bool = input_validation(input("Do you want to shift hues instead of set hues? [y/n]: "))
+    split_by_directory: bool = input_validation(input("Do you want to split output by directories instead of name? [y/n]: "))
+
+    if leng < 3:
+        for img in glob.glob(str(in_dir + '*.png')):
+            
+            img_str = path.basename(img)
+            huePrism(img_str, in_dir, out_dir, shift, split_by_directory)
+            #my_img = img_str[len(in_dir):]
+            #endpoint = my_img.rfind("\\")
+            #if endpoint != -1:
+            #    new_in_dir = in_dir + my_img[0:endpoint] + "/"
+            #    new_out_dir = out_dir + my_img[0:endpoint] + "/"
+            #    #print(f"my_img {my_img}, endpoint {endpoint}, new in {new_in_dir}, new out {new_out_dir}")
+            #    huePrism(img.name, new_in_dir, new_out_dir, shift, split_by_directory)
+            #else:
+            #    huePrism(img.name, in_dir, out_dir, shift, split_by_directory)
+    else:
+        i: int = 2
+        while i < leng:
+            huePrism(args[i], in_dir, out_dir, shift, split_by_directory)
+            i += 1
+
+# regular execution
+if __name__ == "__main__":
+
+    in_dir: str = "input/"
+    out_dir: str = "output/"
+    loopfor: int = len(argv) - 1
+
+    shift: bool = input_validation(input("Do you want to shift hues instead of set hues? [y/n]: "))
+    split_by_directory: bool = input_validation(input("Do you want to split output by directories instead of name? [y/n]: "))
+
+    if loopfor < 1:
+        for img in glob.glob(str(in_dir + '*.png')):
+            
+            img_str = path.basename(img)
+            huePrism(img_str, in_dir, out_dir, shift, split_by_directory)
+        # Recursively accessing files seems to cause an infinite loop sometimes
+        #for img in Path(in_dir).rglob("*.png"):
+            #img_str = str(img)
+            #
+            #my_img = img_str[len(in_dir):]
+            #endpoint = my_img.rfind("\\")
+            #if endpoint != -1:
+            #    new_in_dir = in_dir + my_img[0:endpoint] + "/"
+            #    new_out_dir = out_dir + my_img[0:endpoint] + "/"
+            #    #print(f"my_img {my_img}, endpoint {endpoint}, new in {new_in_dir}, new out {new_out_dir}")
+            #    huePrism(img.name, new_in_dir, new_out_dir, shift, split_by_directory)
+            #else:
+            #    huePrism(img.name, in_dir, out_dir, shift, split_by_directory)
+    else:
         i : int = 1
         while i < loopfor + 1:
             huePrism(argv[i], in_dir, out_dir, shift, split_by_directory)

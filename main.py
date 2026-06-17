@@ -51,7 +51,6 @@ def find_folder(main_location: str, tool: str):
 # main
 if __name__ == "__main__":
 
-    
     # Relative input and output paths
     in_dir : str = ""
     out_dir : str = "output/"
