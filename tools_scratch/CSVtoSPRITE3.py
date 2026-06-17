@@ -12,6 +12,12 @@
 import csv, json, uuid, zipfile, glob, os
 from sys import argv
 
+def input_validation(input : str):
+    input = input.capitalize()
+    if input in ["1", "Y", "YES"]:
+        return True
+    return False
+
 def csv_to_sprite(csv_file : str, costume_asset : dict, sprite_name : str = "Sprite1", make_local : bool = False, split_columns : bool = False):
     with open(csv_file, newline='') as input:
         reader = csv.DictReader(input)
@@ -141,40 +147,71 @@ scratch_cat = """<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www
   </g>
 </svg>"""
 
-print(argv)
+#print(argv)
 
-loopfor : int = len(argv) - 1
+# importlib execution
+def main(*args):
 
-# Other Arguments (might add to argv)
-in_dir = "input/"
-out_dir = "output/"
-make_local = False
-split_columns = False
+    in_dir: str = args[0]
+    out_dir: str = args[1]
+    leng: int = len(args)
+    make_local: bool = input_validation(input("Do you want the variables to be local to the sprite? [y/n]: "))
+    split_columns: bool = input_validation(input("Do you want the variables to be in split columns? [y/n]: "))
 
-# Create Base Costume
-with open(f"{encoded_costume}.svg", "w") as costume:
-    costume.write(scratch_cat)
+    # Create Base Costume
+    with open(f"{encoded_costume}.svg", "w") as costume:
+        costume.write(scratch_cat)
+    
+    # Loop for converting all CSVs
+    try:
+        if leng < 3:
+            for img in glob.glob(str(in_dir + '*.csv')):
+                CSVtoSPRITE3(img[len(in_dir):], in_dir, out_dir, costume_asset, img[len(in_dir):], make_local, split_columns)
+        else:
+            i: int = 2
+            while i < leng:
+                CSVtoSPRITE3(args[i], in_dir, out_dir, costume_asset, args[i], make_local, split_columns)
+                i += 1
+    finally:
+        # Delete Base Costume
+        if os.path.isfile(f"{encoded_costume}.svg"):
+            os.remove(f"{encoded_costume}.svg")
 
-# Give each file a unique name
-incrementer = 1
+# regular execution
+if __name__ == "__main__":
 
-# Loop for converting all CSVs
-try:
-    if loopfor < 1:
-        # Automatic loop if no command line arguments
-        print("Loop All")
-        for img in glob.glob(str(in_dir + '*.csv')):
-            CSVtoSPRITE3(img[len(in_dir):], in_dir, out_dir, costume_asset, img[len(in_dir):], make_local)
-            incrementer += 1
-    else:
-        # Loop for command line arguments
-        print("Loop Args")
-        i : int = 1
-        while i < loopfor + 1:
-            CSVtoSPRITE3(argv[i], in_dir, out_dir, costume_asset, argv[i], make_local)
-            incrementer += 1
-            i += 1
-finally:
-    # Delete Base Costume
-    if os.path.isfile(f"{encoded_costume}.svg"):
-        os.remove(f"{encoded_costume}.svg")
+    loopfor : int = len(argv) - 1
+
+    # Other Arguments (might add to argv)
+    in_dir = "input/"
+    out_dir = "output/"
+    make_local = False
+    split_columns = False
+
+    # Create Base Costume
+    with open(f"{encoded_costume}.svg", "w") as costume:
+        costume.write(scratch_cat)
+
+    # Give each file a unique name
+    #incrementer = 1
+
+    # Loop for converting all CSVs
+    try:
+        if loopfor < 1:
+            # Automatic loop if no command line arguments
+            print("Loop All")
+            for img in glob.glob(str(in_dir + '*.csv')):
+                CSVtoSPRITE3(img[len(in_dir):], in_dir, out_dir, costume_asset, img[len(in_dir):], make_local), split_columns
+                #incrementer += 1
+        else:
+            # Loop for command line arguments
+            print("Loop Args")
+            i : int = 1
+            while i < loopfor + 1:
+                CSVtoSPRITE3(argv[i], in_dir, out_dir, costume_asset, argv[i], make_local, split_columns)
+                #incrementer += 1
+                i += 1
+    finally:
+        # Delete Base Costume
+        if os.path.isfile(f"{encoded_costume}.svg"):
+            os.remove(f"{encoded_costume}.svg")
