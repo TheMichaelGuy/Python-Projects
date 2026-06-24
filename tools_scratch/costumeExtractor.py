@@ -1,5 +1,5 @@
 """
-    SPRITE3CostumeExtractor.py
+    costumeExtractor.py
 
     Extracts the costumes from a sprite with their names intact
 """
@@ -33,9 +33,6 @@ loopfor : int = len(argv) - 1
 if loopfor < 1:
     print("Enter filenames as additional command line arguments")
     exit
-
-#print(argv)
-
 
 # importlib execution
 def main(*args):

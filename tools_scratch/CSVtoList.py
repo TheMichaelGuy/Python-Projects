@@ -1,5 +1,5 @@
 """
-    CSVtoSPRITE3.py
+    CSVtoList.py
 
     converts a csv file to a Scratch 3 sprite which contains the information as a
     collection of `add (thing) to (list)` blocks connected by column
@@ -21,8 +21,8 @@ def input_validation(input : str):
 def csv_to_sprite(csv_file : str, costume_asset : dict, sprite_name : str = "Sprite1", make_local : bool = False, split_columns : bool = False):
     with open(csv_file, newline='') as input:
         reader = csv.DictReader(input)
-        rows = list(reader)
-        headers = reader.fieldnames
+        rows: list[dict[str]] = list(reader)
+        headers: list[str] = reader.fieldnames
 
         # Create lists metadata
         lists = {h: [h, str(uuid.uuid4())] for h in headers}

@@ -65,23 +65,23 @@ if __name__ == "__main__":
         argv[1]
         folder : str = find_folder(main_location, argv[1])
         if folder != "":
-            try:
-                module = import_module(f"{folder}.{argv[1][:-3]}") # Note that this will run the outer code first, so everything should go in main from now on
-                if hasattr(module, "main"):
-                    argv.pop(0) # Remove command
-                    argv.pop(0)
-                    argv.insert(0, current_location + "/" + in_dir)
-                    out_path : str = current_location + "/" + out_dir
-                    argv.insert(1, out_path)
-                    #print(f"args {argv}")
-                    if not os.path.exists(out_path):
-                        os.makedirs(out_path)
-                    module.main(*argv) # each main will have to accept in_dir and out_dir as args and prompt the user for the rest of the args that aren't files
-                    exit()
-                else:
-                    print(f"Module {module} doesn't have main() function")
-            except ModuleNotFoundError:
-                print(f"Tool {argv[1]} not found... somehow")
+            #try:
+            module = import_module(f"{folder}.{argv[1][:-3]}") # Note that this will run the outer code first, so everything should go in main from now on
+            if hasattr(module, "main"):
+                argv.pop(0) # Remove command
+                argv.pop(0)
+                argv.insert(0, current_location + "/" + in_dir)
+                out_path : str = current_location + "/" + out_dir
+                argv.insert(1, out_path)
+                #print(f"args {argv}")
+                if not os.path.exists(out_path):
+                    os.makedirs(out_path)
+                module.main(*argv) # each main will have to accept in_dir and out_dir as args and prompt the user for the rest of the args that aren't files
+                exit()
+            else:
+                print(f"Module {module} doesn't have main() function")
+            #except ModuleNotFoundError:
+            #    print(f"Tool {argv[1]} not found... somehow")
         else:
             print("Couldn't find the tool!")
 
