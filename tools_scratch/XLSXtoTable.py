@@ -5,7 +5,7 @@
     functioning as a table
 
     sys arguments:
-    argv 1 to n = xlsx files to convert (increments file name, leave blank to convert all XLSXs)
+    argv 1 to n = excel sheets to convert (leave blank to convert all xlsx files in input)
 """
 
 import pandas as pd
@@ -41,10 +41,6 @@ def input_validation(input : str):
     if input in ["1", "Y", "YES"]:
         return True
     return False
-
-# Creates a name and id pair
-#def new_var(name, initial=0):
-#    return {str(uuid.uuid4()): [name, initial]}
 
 # Generates an ID that will hopefully resemble the IDs Scratch generates
 # This may not matter as Scratch resolves most things when a sprite is imported and tends to leave
@@ -534,14 +530,19 @@ def main(*args):
     variable_name: str = input("Enter a name for the variable which will control the table: ")
     list_name: str = input("Enter a name for the list which will control the current table loaded: ")
 
-    if leng < 3:
-        for img in glob.glob(str(in_dir + '*.svg')):
-            XLSXtoSPRITE3(img[len(in_dir):], in_dir, out_dir, costume_asset, img[len(in_dir):], use_sheet_names, broadcast_name, variable_name, list_name)
-    else:
-        i: int = 2
-        while i < leng:
-            XLSXtoSPRITE3(args[i], in_dir, out_dir, costume_asset, args[i], use_sheet_names, broadcast_name, variable_name, list_name)
-            i += 1
+    try:
+        if leng < 3:
+            for img in glob.glob(str(in_dir + '*.svg')):
+                XLSXtoSPRITE3(img[len(in_dir):], in_dir, out_dir, costume_asset, os.path.splitext(img[len(in_dir):])[0], use_sheet_names, broadcast_name, variable_name, list_name)
+        else:
+            i: int = 2
+            while i < leng:
+                XLSXtoSPRITE3(args[i], in_dir, out_dir, costume_asset, os.path.splitext(args[i])[0], use_sheet_names, broadcast_name, variable_name, list_name)
+                i += 1
+    finally:
+        # Delete Base Costume
+        if os.path.isfile(f"{encoded_costume}.svg"):
+            os.remove(f"{encoded_costume}.svg")    
 
 # regular execution
 if __name__ == "__main__":
