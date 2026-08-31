@@ -138,16 +138,18 @@ def exporter_args(root: str, **kwargs):
 
                 output_file: str = root + "/" + folder_name + extension
 
-                save_as(input_file, output_file)
-                #i += 1
-                break
+                if not os.path.isfile(output_file):
+                    save_as(input_file, output_file)
+                    break
+                i += 1
         else:
             #print(4)
             while i < leng:
                 input_file: str = in_dir + "/" + argv[i]
                 output_file: str = root + "/" + os.path.basename(input_file)
 
-                save_as(input_file, output_file)
+                if not os.path.isfile(output_file):
+                    save_as(input_file, output_file)
                 i += 1    
 
 # importlib execution
