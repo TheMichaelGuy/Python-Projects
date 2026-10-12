@@ -1,7 +1,7 @@
 """
     svgFullColor.py
 
-    Hopefully a whole Scratch SVG sprite the color decided by command line argument 1
+    Recolors a whole Scratch SVG sprite the color decided by command line argument 1
 """
 
 import os
